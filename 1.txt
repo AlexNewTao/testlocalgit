@@ -1,0 +1,2 @@
+this is a first programe 
+i use this to test how to check how to use the git in local
