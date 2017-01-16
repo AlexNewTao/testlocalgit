@@ -16,15 +16,6 @@ title :reference count
 
 static int64_t gc_count=0;
 
-struct gc_list_type{
-	int64_t gc_containerid;
-	int32_t gc_chunk_shift;
-	struct gc_list_type *next;
-};
-
-
-
-
 
 void Destory_gc_list()
 {
@@ -98,7 +89,8 @@ void gc_reference_time_map()
 int64_t gc_reference_count(int n)
 {
 	printf("gc in the gc_reference_count\n");
-	return 111;
+	
+	return n;
 }
 
 void get_delete_message()
