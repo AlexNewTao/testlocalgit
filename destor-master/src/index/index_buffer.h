@@ -8,6 +8,7 @@
 struct indexElem {
     containerid id;
     fingerprint fp;
+	int reference_count;
 };
 
 /* The buffer size > 2 * destor.rewrite_buffer_size */
