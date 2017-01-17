@@ -69,6 +69,9 @@ void init_kvstore_htable(){
 	sds indexpath = sdsdup(destor.working_directory);
 	indexpath = sdscat(indexpath, "index/htable");
 
+	//in this plase i add the read reference
+
+
 	/* Initialize the feature index from the dump file. */
 	FILE *fp;
 	if ((fp = fopen(indexpath, "r"))) {
@@ -106,6 +109,8 @@ void close_kvstore_htable() {
 		perror("Can not open index/htable for write because:");
 		exit(1);
 	}
+	
+	//in this i add the write reference count
 
 	NOTICE("flushing hash table!");
 	int key_num = g_hash_table_size(htable);
