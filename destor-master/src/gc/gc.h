@@ -25,8 +25,6 @@ void Destory_gc_list();
 void gc_list_AddEnd(struct gc_list_type* gc_data);
 
 
-
-
 void start_garbage_collection();
 
 int64_t get_gc_reference_count(int n);

@@ -8,6 +8,7 @@
 struct indexElem {
     containerid id;
     fingerprint fp;
+	//add reference count in indexElem for gc 
 	int reference_count;
 };
 
