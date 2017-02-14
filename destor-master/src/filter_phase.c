@@ -207,7 +207,20 @@ static void* filter_thread(void *arg) {
         }
 
         int full = index_update_buffer(s);
+/*/////
+		GSequenceIter *iter = g_sequence_get_begin_iter(s->chunks);
+    	GSequenceIter *end = g_sequence_get_end_iter(s->chunks);
+    	for (; iter != end; iter = g_sequence_iter_next(iter)) {
+        	struct chunk* c = g_sequence_get(iter);
 
+        	if (CHECK_CHUNK(c, CHUNK_FILE_START) || CHECK_CHUNK(c, CHUNK_FILE_END))
+            	continue;
+
+			c->
+
+    	}
+		
+///////*/
         /* Write a SEGMENT_BEGIN */
         segmentid sid = append_segment_flag(jcr.bv, CHUNK_SEGMENT_START, s->chunk_num);
 

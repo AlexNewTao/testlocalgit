@@ -69,8 +69,6 @@ void init_kvstore_htable(){
 	sds indexpath = sdsdup(destor.working_directory);
 	indexpath = sdscat(indexpath, "index/htable");
 
-	//in this plase i add the read reference
-
 
 	/* Initialize the feature index from the dump file. */
 	FILE *fp;
@@ -84,13 +82,16 @@ void init_kvstore_htable(){
 			fread(get_key(kv), destor.index_key_size, 1, fp);
 
 			/* The number of segments/containers the feature refers to. */
-			int id_num, i;
+			int id_num, i,reference_count;
 			fread(&id_num, sizeof(int), 1, fp);
 			assert(id_num <= destor.index_value_length);
 
 			for (i = 0; i < id_num; i++)
 				/* Read an ID */
 				fread(&get_value(kv)[i], sizeof(int64_t), 1, fp);
+
+			//从磁盘读取引用计数值
+			//fread(&reference_count, int, 1, fp);
 
 			g_hash_table_insert(htable, get_key(kv), kv);
 		}
