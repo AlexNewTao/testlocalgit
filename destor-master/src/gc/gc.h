@@ -15,7 +15,7 @@ struct gc_list_type *gchead;
 
 struct gc_list_type{
 	int64_t gc_containerid;
-	int32_t gc_chunk_shift;
+	int32_t gc_fp;
 	struct gc_list_type *next;
 };
 

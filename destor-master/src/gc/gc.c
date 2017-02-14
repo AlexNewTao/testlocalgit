@@ -42,7 +42,7 @@ void gc_list_AddEnd(struct gc_list_type* gc_data)
     {
 
     	node->gc_containerid=gc_data->gc_containerid;//保存数据
-        node->gc_chunk_shift=gc_data->gc_chunk_shift;//保存数据
+        node->gc_fp=gc_data->gc_fp;//保存数据
         node->next=NULL;//设置结点指针为空，即为表尾；
 
         if (gchead==NULL)
