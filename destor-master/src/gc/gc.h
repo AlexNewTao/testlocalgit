@@ -24,14 +24,13 @@ void Destory_gc_list();
 
 void gc_list_AddEnd(struct gc_list_type* gc_data);
 
-int64_t gc_reference_count(int n);
+
+
 
 void start_garbage_collection();
 
-void gc_reference_time_map();
+int64_t get_gc_reference_count(int n);
 
-
-
-
+void get_delete_message();
 
 #endif  

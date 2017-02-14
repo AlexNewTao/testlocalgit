@@ -69,10 +69,10 @@ void gc_list_AddEnd(struct gc_list_type* gc_data)
 
 void start_garbage_collection()
 {
-	gc_reference_time_map();
+	gc_reference_count();
 }
 
-void gc_reference_time_map()
+void gc_reference_count()
 {
 	int deleteversion;
 	printf("please input the versition you want to delete!\n");
@@ -80,13 +80,14 @@ void gc_reference_time_map()
 
 	
 
-	gc_count=gc_reference_count(deleteversion);
+	gc_count=get_gc_reference_count(deleteversion);
 	
 	get_delete_message();
+
 	printf("finish garbage collection\n");
 }
 
-int64_t gc_reference_count(int n)
+int64_t get_gc_reference_count(int n)
 {
 	printf("gc in the gc_reference_count\n");
 	
