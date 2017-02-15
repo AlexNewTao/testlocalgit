@@ -186,9 +186,10 @@ void write_rc_struct_to_disk()
     g_hash_table_destroy(rc_htable);
 }
 
-
 void read_rc_struct_from_disk()
 {
+    rc_htable=g_hash_table_new_full(g_int64_hash,fingerprint_equal, NULL, NULL);
+    
     sds rc_path = sdsdup(destor.working_directory);
     rc_path = sdscat(rc_path, "reference_count.rc");
 
@@ -213,10 +214,11 @@ void read_rc_struct_from_disk()
             struct rc_value * temp=(struct rc_value*)malloc(sizeof(struct rc_value));
             temp->reference_count=reference_count;
             temp->id=id;
-            g_hash_table_insert(rc_htable,&c->fp,temp);
+            g_hash_table_insert(rc_htable,&key,temp);
         }
         fclose(fp);
     }
     
     sdsfree(rc_path);
 }
+

@@ -335,6 +335,10 @@ void start_filter_phase() {
 
     init_restore_aware();
 
+	read_rc_struct_from_disk();
+
+    printf("read rc struct form disk successfully\n");
+
     pthread_create(&filter_t, NULL, filter_thread, NULL);
 
 	// write_rc_struct_to_disk();
