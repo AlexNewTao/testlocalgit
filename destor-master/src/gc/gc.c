@@ -28,6 +28,9 @@ void Destory_gc_list()
     }
 }
 
+
+
+
 void gc_list_AddEnd(struct gc_list_type* gc_data)
 {
 

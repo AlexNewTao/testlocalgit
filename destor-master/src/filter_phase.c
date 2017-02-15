@@ -5,6 +5,7 @@
 #include "rewrite_phase.h"
 #include "backup.h"
 #include "index/index.h"
+#include "gc/rc.h"
 
 static pthread_t filter_t;
 static int64_t chunk_num;
@@ -207,20 +208,9 @@ static void* filter_thread(void *arg) {
         }
 
         int full = index_update_buffer(s);
-/*/////
-		GSequenceIter *iter = g_sequence_get_begin_iter(s->chunks);
-    	GSequenceIter *end = g_sequence_get_end_iter(s->chunks);
-    	for (; iter != end; iter = g_sequence_iter_next(iter)) {
-        	struct chunk* c = g_sequence_get(iter);
 
-        	if (CHECK_CHUNK(c, CHUNK_FILE_START) || CHECK_CHUNK(c, CHUNK_FILE_END))
-            	continue;
+		update_reference_count(s);
 
-			c->
-
-    	}
-		
-///////*/
         /* Write a SEGMENT_BEGIN */
         segmentid sid = append_segment_flag(jcr.bv, CHUNK_SEGMENT_START, s->chunk_num);
 
@@ -346,11 +336,14 @@ void start_filter_phase() {
     init_restore_aware();
 
     pthread_create(&filter_t, NULL, filter_thread, NULL);
+
+	// write_rc_struct_to_disk();
+	
 }
 
 void stop_filter_phase() {
     pthread_join(filter_t, NULL);
     close_har();
 	NOTICE("filter phase stops successfully!");
-
+	// write_rc_struct_to_disk();
 }

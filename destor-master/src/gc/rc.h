@@ -10,7 +10,7 @@ title :reference count
 #ifndef RC_H
 #define RC_H
 
-static gboolean g_fingerprint_equal(fingerprint* fp1, fingerprint* fp2) 
+gboolean g_fingerprint_equal(fingerprint* fp1, fingerprint* fp2);
 
 
 
