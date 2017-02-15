@@ -124,6 +124,7 @@ void update_reference_count(struct segment *s)
     }
 
 }
+
 void write_rc_struct_to_disk()
 {
     sds rc_path = sdsdup(destor.working_directory);
@@ -141,7 +142,9 @@ void write_rc_struct_to_disk()
 
     GHashTableIter iter;
 
-    gpointer key, value;
+    gpointer key;
+
+    gpointer value;
 
     g_hash_table_iter_init(&iter, rc_htable);
 
@@ -156,22 +159,24 @@ void write_rc_struct_to_disk()
         }
 
         //结构体一起写入磁盘
-        /*if(fwrite(value, sizeof(struct rc_value ), 1, fp) != 1){
+        if(fwrite(value, sizeof(struct rc_value ), 1, fp) != 1){
             perror("Fail to write a value!");
             exit(1);
-        }*/
+        }
         //分开写入磁盘
-        int id=value->id;
-        int reference_count=value->reference_count;
-        if(fwrite(&id, sizeof(int64_t ), 1, fp) != 1){
+        //struct rc_value *rc_value1=value;
+           
+        //int id=rc_value1->id;
+        //int reference_count=rc_value1->reference_count;
+    /*    if(fwrite(&value->id, sizeof(int64_t ), 1, fp) != 1){
             perror("Fail to write a id!");
             exit(1);
         }
 
-        if(fwrite(&reference_count, sizeof(int), 1, fp) != 1){
+        if(fwrite(&value->reference_count, sizeof(int), 1, fp) != 1){
             perror("Fail to write a reference_count!");
             exit(1);
-        }
+        }*/
     }
 
     fclose(fp);
@@ -179,8 +184,6 @@ void write_rc_struct_to_disk()
     sdsfree(rc_path);
 
     g_hash_table_destroy(rc_htable);
-}
-
 }
 
 

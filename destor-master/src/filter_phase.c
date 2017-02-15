@@ -345,5 +345,8 @@ void stop_filter_phase() {
     pthread_join(filter_t, NULL);
     close_har();
 	NOTICE("filter phase stops successfully!");
-	// write_rc_struct_to_disk();
+	
+	write_rc_struct_to_disk();
+
+	printf("write rc struct to disk successful");
 }
