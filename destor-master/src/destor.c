@@ -291,6 +291,7 @@ int main(int argc, char **argv) {
 		}
 		case 'g':{
 			job = DESTOR_GARBAGE_COLLECTION;
+			revision = atoi(optarg);
 			printf("parementer g!\n");
 			break;
 		}
@@ -355,8 +356,14 @@ int main(int argc, char **argv) {
 		break;
 	}
 	case DESTOR_GARBAGE_COLLECTION:{
+		if (revision < 0) {
+			fprintf(stderr, "A job id is required!\n");
+			usage();
+		}
 
-		start_garbage_collection();
+		do_gc(revision);
+
+		sdsfree(path);
 		break;
 	}
 	default:

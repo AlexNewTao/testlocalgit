@@ -110,7 +110,7 @@ void do_gc(int revision, char *path) {
 
     init_recipe_store();
 
-    init_restore_jcr(revision, path);
+    init_gc_jcr(revision);
 
     //read rc struct from disk for gc
     read_rc_struct_from_disk();

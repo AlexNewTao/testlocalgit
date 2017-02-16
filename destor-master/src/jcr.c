@@ -84,3 +84,65 @@ void init_restore_jcr(int revision, char *path) {
 
 	jcr.id = revision;
 }
+
+
+static void init_jcr_referece_count() {
+
+	jcr.bv = NULL;
+
+	jcr.id = TEMPORARY_ID;
+
+    jcr.status = JCR_STATUS_INIT;
+
+	jcr.file_num = 0;
+	jcr.data_size = 0;
+	jcr.unique_data_size = 0;
+	jcr.chunk_num = 0;
+	jcr.unique_chunk_num = 0;
+	jcr.zero_chunk_num = 0;
+	jcr.zero_chunk_size = 0;
+	jcr.rewritten_chunk_num = 0;
+	jcr.rewritten_chunk_size = 0;
+
+	jcr.sparse_container_num = 0;
+	jcr.inherited_sparse_num = 0;
+	jcr.total_container_num = 0;
+
+	jcr.total_time = 0;
+	/*
+	 * the time consuming of seven backup phase
+	 */
+	jcr.read_time = 0;
+	jcr.chunk_time = 0;
+	jcr.hash_time = 0;
+	jcr.dedup_time = 0;
+	jcr.rewrite_time = 0;
+	jcr.filter_time = 0;
+	jcr.write_time = 0;
+
+	/*
+	 * the time consuming of three restore phase
+	 */
+	jcr.read_recipe_time = 0;
+	jcr.read_chunk_time = 0;
+	jcr.write_chunk_time = 0;
+
+	jcr.read_container_num = 0;
+}
+
+
+void init_gc_jcr(int revision) {
+
+	init_jcr_referece_count();
+
+	jcr.bv = open_backup_version(revision);
+
+	if(jcr.bv->deleted == 1){
+		WARNING("The backup has been deleted!");
+		exit(1);
+	}
+
+	jcr.id = revision;
+}
+
+
