@@ -200,7 +200,7 @@ void do_restore(int revision, char *path) {
 	restore_recipe_queue = sync_queue_new(100);
 
 	TIMER_DECLARE(1);
-	TIMER_BEGIN(1);
+	TIMER_BEGIN(1); 
 
 	puts("==== restore begin ====");
 
