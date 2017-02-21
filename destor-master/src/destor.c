@@ -22,7 +22,7 @@ extern void load_config_from_string(sds config);
 /* : means argument is required.
  * :: means argument is required and no space.
  */
-const char * const short_options = "sr::t::p::h::g";
+const char * const short_options = "sr::t::p::h::g::";
 
 struct option long_options[] = {
 		{ "state", 0, NULL, 's' },
