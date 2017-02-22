@@ -69,6 +69,8 @@ void init_backup_jcr(char *path) {
 	jcr.bv = create_backup_version(jcr.path);
 
 	jcr.id = jcr.bv->bv_num;
+
+	init_rc_struct(jcr.id);
 }
 
 void init_restore_jcr(int revision, char *path) {

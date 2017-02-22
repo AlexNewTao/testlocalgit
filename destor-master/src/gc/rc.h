@@ -25,6 +25,7 @@ void write_rc_struct_to_disk();
 
 void read_rc_struct_from_disk();
 
+void init_rc_struct(int n);
 
 
 #endif

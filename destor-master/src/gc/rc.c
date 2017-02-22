@@ -222,3 +222,18 @@ void read_rc_struct_from_disk()
     sdsfree(rc_path);
 }
 
+
+
+void init_rc_struct(int n)
+{
+    if (n==0)
+    {
+        rc_htable=g_hash_table_new_full(g_int64_hash,fingerprint_equal, NULL, NULL); 
+    }
+    else
+    {
+        read_rc_struct_from_disk();
+    }
+}
+
+
