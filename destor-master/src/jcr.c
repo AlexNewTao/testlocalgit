@@ -6,6 +6,7 @@
  */
 
 #include "jcr.h"
+#include "../gc/rc.h"
 
 struct jcr jcr;
 

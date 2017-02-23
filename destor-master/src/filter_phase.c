@@ -206,10 +206,9 @@ static void* filter_thread(void *arg) {
 
             chunk_num++;
         }
-
+		update_reference_count(s);
         int full = index_update_buffer(s);
 
-		update_reference_count(s);
 
         /* Write a SEGMENT_BEGIN */
         segmentid sid = append_segment_flag(jcr.bv, CHUNK_SEGMENT_START, s->chunk_num);
