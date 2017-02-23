@@ -10,25 +10,22 @@ title :reference count
 
 #ifndef GC_H
 #define GC_H
-
-struct gc_list_type *gchead;
-
-struct gc_list_type{
-	int64_t gc_containerid;
-	int32_t gc_fp;
-	struct gc_list_type *next;
+ struct rc_list{
+    int64_t id;
+    fingerprint fp;
+    struct rc_list *next;
 };
+struct rc_list *gchead;
 
 void Destory_gc_list();
 
+void add_to_rc(struct rc_list* rc_data);
 
-void gc_list_AddEnd(struct gc_list_type* gc_data);
+void* gc_read_recipe_thread(void *arg);
 
-
-void start_garbage_collection();
-
-int64_t get_gc_reference_count(int n);
-
+//void do_gc(int revision);
+void do_gc(int revision, char *path);
 void get_delete_message();
+
 
 #endif  
