@@ -333,7 +333,7 @@ void do_gc(int revision, char *path) {
     pthread_create(&write_t, NULL, write_restore_data, NULL);
 
     do{
-        sleep(5);
+        ¡//sleep(5);
         /*time_t now = time(NULL);*/
         fprintf(stderr, "%" PRId64 " bytes, %" PRId32 " chunks, %d files processed\r", 
                 jcr.data_size, jcr.chunk_num, jcr.file_num);

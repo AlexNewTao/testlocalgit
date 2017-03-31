@@ -14,7 +14,7 @@ title :reference count
 #include "../destor.h"
 
 
-static int64_t gc_count=0;
+int64_t gc_count=0;
 
 
 void Destory_gc_list()
