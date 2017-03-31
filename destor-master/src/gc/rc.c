@@ -9,11 +9,21 @@ title :reference count
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <./destor.h>
 
+#include "../destor.h"
+#include "rc.h"
+#include "../jcr.h"
 
 typedef unsigned char fingerprint[20];
+
 typedef int64_t containerid; //container id
+
+
+
+gboolean fingerprint_equal(fingerprint* fp1, fingerprint* fp2) {
+    return !memcmp(fp1, fp2, sizeof(fingerprint));
+}
+
 
 int unique_count_key=0;
 int dedup_count_key=0;
@@ -102,9 +112,6 @@ void update_reference_count(struct segment *s)
                 exit(1);
             }
         }
-
-
-
         /*if (CHECK_CHUNK(c,CHUNK_UNIQUE))
         {
             uniuqe_count_key++;
@@ -174,6 +181,8 @@ void update_reference_count(struct segment *s)
 
 void write_rc_struct_to_disk()
 {
+    
+
     sds rc_path = sdsdup(destor.working_directory);
     rc_path = sdscat(rc_path, "reference_count.rc");
 
@@ -182,6 +191,9 @@ void write_rc_struct_to_disk()
         perror("Can not open reference_count.rc for write because:");
         exit(1);
     }
+    
+    TIMER_DECLARE(1);
+    TIMER_BEGIN(1);
 
     int64_t keynum=g_hash_table_size(rc_htable);
 
@@ -207,12 +219,12 @@ void write_rc_struct_to_disk()
             exit(1);
         }
 
-        //½á¹¹ÌåÒ»ÆðÐ´Èë´ÅÅÌ
+        //ç»“æž„ä½“ä¸€èµ·å†™å…¥ç£ç›˜
         /*if(fwrite(value, sizeof(struct rc_value ), 1, fp) != 1){
             perror("Fail to write a value!");
             exit(1);
         }*/
-        //·Ö¿ªÐ´Èë´ÅÅÌ
+        //åˆ†å¼€å†™å…¥ç£ç›˜
         struct rc_value *rc_value1=(struct rc_value *)value;
            
         int id=rc_value1->id;
@@ -226,6 +238,8 @@ void write_rc_struct_to_disk()
             perror("Fail to write a reference_count!");
             exit(1);
         }
+
+
     }
 
     fclose(fp);
@@ -233,6 +247,8 @@ void write_rc_struct_to_disk()
     sdsfree(rc_path);
 
     g_hash_table_destroy(rc_htable);
+
+    TIMER_END(1, jcr.write_rc_struct_time);
 
     printf("write_rc_struct_to_disk successful\n");
 
@@ -263,6 +279,9 @@ int64_t read_key=0;
 
 void read_rc_struct_from_disk()
 {
+    TIMER_DECLARE(1);
+    TIMER_BEGIN(1);
+
     rc_htable=g_hash_table_new_full(g_int64_hash,fingerprint_equal, NULL, NULL);
     
     sds rc_path = sdsdup(destor.working_directory);
@@ -300,10 +319,11 @@ void read_rc_struct_from_disk()
         }
         fclose(fp);
     }
+
     
     sdsfree(rc_path);
     printf("the read key is %ld\n",read_key);
 
+    TIMER_END(1, jcr.read_rc_struct_time);
     printf("last the sizeof key read is %ld\n",g_hash_table_size(rc_htable));
 }
-
