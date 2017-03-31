@@ -4,6 +4,7 @@
 #include "index/index.h"
 #include "backup.h"
 #include "storage/containerstore.h"
+#include "gc/rc.h"
 
 /* defined in index.c */
 extern struct {
@@ -17,6 +18,9 @@ extern struct {
 
 void do_backup(char *path) {
 
+	TIMER_DECLARE(1);
+	TIMER_BEGIN(1);
+
 	init_recipe_store();
 	init_container_store();
 	init_index();
@@ -24,9 +28,6 @@ void do_backup(char *path) {
 	init_backup_jcr(path);
 
 	puts("==== backup begin ====");
-
-	TIMER_DECLARE(1);
-	TIMER_BEGIN(1);
 
     time_t start = time(NULL);
 	if (destor.simulation_level == SIMULATION_ALL) {
@@ -60,15 +61,16 @@ void do_backup(char *path) {
 	stop_rewrite_phase();
 	stop_filter_phase();
 
-	TIMER_END(1, jcr.total_time);
-
 	close_index();
 	close_container_store();
 	close_recipe_store();
 
+	
 	update_backup_version(jcr.bv);
 
 	free_backup_version(jcr.bv);
+
+	TIMER_END(1, jcr.total_time);
 
 	puts("==== backup end ====");
 
@@ -166,7 +168,7 @@ void do_backup(char *path) {
 	 * 4 * index overhead (4 * int)
 	 * throughput,
 	 */
-	fprintf(fp, "%" PRId32 " %" PRId64 " %" PRId64 " %.4f %.4f %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32" %" PRId32 " %" PRId32" %" PRId32" %.2f\n",
+/*	fprintf(fp, "%" PRId32 " %" PRId64 " %" PRId64 " %.4f %.4f %" PRId32 " %" PRId32 " %" PRId32 " %" PRId32" %" PRId32 " %" PRId32" %" PRId32" %.2f\n",
 			jcr.id,
 			jcr.data_size,
 			destor.stored_data_size,
@@ -181,8 +183,56 @@ void do_backup(char *path) {
 			index_overhead.lookup_requests_for_unique,
 			index_overhead.update_requests,
 			index_overhead.read_prefetching_units,
+			(double) jcr.data_size * 1000000 / (1024 * 1024 * jcr.total_time));*/
+
+	/*fprintf(fp, "%" PRId32 " %" PRId64 " %" PRId64 " %.4f %.3f %.2f %.3f %.2f %.3f %.2f %.3f %.2f %.3f %.2f %" " %.2f\n",
+			jcr.id,
+			jcr.data_size,
+			destor.stored_data_size,
+			jcr.data_size != 0 ?
+					(jcr.data_size - jcr.rewritten_chunk_size - jcr.unique_data_size)/(double) (jcr.data_size)
+					: 0,
+			jcr.read_time / 1000000,
+			jcr.data_size * 1000000 / jcr.read_time / 1024 / 1024),
+			jcr.chunk_time / 1000000,
+			jcr.data_size * 1000000 / jcr.chunk_time / 1024 / 1024),
+			jcr.hash_time / 1000000,
+			jcr.data_size * 1000000 / jcr.hash_time / 1024 / 1024),
+			jcr.rewrite_time / 1000000,
+			jcr.data_size * 1000000 / jcr.rewrite_time / 1024 / 1024),
+			jcr.filter_time / 1000000,
+			jcr.data_size * 1000000 / jcr.filter_time / 1024 / 1024),
+			jcr.write_time / 1000000,
+			jcr.data_size * 1000000 / jcr.write_time / 1024 / 1024),
 			(double) jcr.data_size * 1000000 / (1024 * 1024 * jcr.total_time));
+	fclose(fp);*/
+	fprintf(fp, "%" PRId32 " %" PRId64 " %" PRId64 " %.4f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
+		jcr.id,
+		jcr.data_size,
+		destor.stored_data_size,
+		jcr.data_size != 0 ?
+				(jcr.data_size - jcr.rewritten_chunk_size - jcr.unique_data_size)/(double) (jcr.data_size)
+				: 0,
+		jcr.read_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.read_time / 1024 / 1024,
+		jcr.chunk_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.chunk_time / 1024 / 1024,
+		jcr.hash_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.hash_time / 1024 / 1024,
+		jcr.dedup_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.dedup_time / 1024 / 1024,
+		jcr.rewrite_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.rewrite_time / 1024 / 1024,
+		jcr.filter_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.filter_time / 1024 / 1024,
+		jcr.write_time / 1000000,
+		//jcr.data_size * 1000000 / jcr.write_time / 1024 / 1024,
+		jcr.total_time / 1000000);
 
 	fclose(fp);
 
 }
+
+
+
+

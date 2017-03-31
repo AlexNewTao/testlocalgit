@@ -4,6 +4,7 @@
 #include "storage/containerstore.h"
 #include "utils/lru_cache.h"
 #include "restore.h"
+#include "gc/gc.h"
 
 static void* lru_restore_thread(void *arg) {
 	struct lruCache *cache;
@@ -107,13 +108,12 @@ static void* read_recipe_thread(void *arg) {
 	return NULL;
 }
 
+
 void* write_restore_data(void* arg) {
 
 	char *p, *q;
-	q = jcr.path + 1;/* ignore the first char*/
-	/*
-	 * recursively make directory
-	 */
+	q = jcr.path + 1;
+	
 	while ((p = strchr(q, '/'))) {
 		if (*p == *(p - 1)) {
 			q++;
@@ -200,14 +200,14 @@ void do_restore(int revision, char *path) {
 	restore_recipe_queue = sync_queue_new(100);
 
 	TIMER_DECLARE(1);
-	TIMER_BEGIN(1); 
+	TIMER_BEGIN(1);
 
 	puts("==== restore begin ====");
 
     jcr.status = JCR_STATUS_RUNNING;
 	pthread_t recipe_t, read_t, write_t;
-	pthread_create(&recipe_t, NULL, read_recipe_thread, NULL);
-
+	//pthread_create(&recipe_t, NULL, read_recipe_thread, NULL);
+	pthread_create(&recipe_t, NULL, gc_read_recipe_thread, NULL);
 	if (destor.restore_cache[0] == RESTORE_CACHE_LRU) {
 		destor_log(DESTOR_NOTICE, "restore cache is LRU");
 		pthread_create(&read_t, NULL, lru_restore_thread, NULL);
@@ -225,7 +225,7 @@ void do_restore(int revision, char *path) {
 	pthread_create(&write_t, NULL, write_restore_data, NULL);
 
     do{
-        sleep(5);
+        //sleep(5);
         /*time_t now = time(NULL);*/
         fprintf(stderr, "%" PRId64 " bytes, %" PRId32 " chunks, %d files processed\r", 
                 jcr.data_size, jcr.chunk_num, jcr.file_num);
@@ -281,34 +281,33 @@ void do_restore(int revision, char *path) {
 
 	close_container_store();
 	close_recipe_store();
+
 }
 
 
 
+
 void do_gc(int revision, char *path) {
+
+    TIMER_DECLARE(1);
+	TIMER_BEGIN(1);
 
     init_recipe_store();
     init_container_store();
 
     init_restore_jcr(revision, path);
 
-
-    /////////
     read_rc_struct_from_disk();
 
     printf("read_rc_struct_from_disk successful\n");
 
-    /////////////
-
+ 
     destor_log(DESTOR_NOTICE, "job id: %d", jcr.id);
     destor_log(DESTOR_NOTICE, "backup path: %s", jcr.bv->path);
     destor_log(DESTOR_NOTICE, "restore to: %s", jcr.path);
 
     restore_chunk_queue = sync_queue_new(100);
     restore_recipe_queue = sync_queue_new(100);
-
-    TIMER_DECLARE(1);
-    TIMER_BEGIN(1);
 
     puts("==== gc begin ====");
 
@@ -333,7 +332,7 @@ void do_gc(int revision, char *path) {
     pthread_create(&write_t, NULL, write_restore_data, NULL);
 
     do{
-        ¡//sleep(5);
+        //sleep(5);
         /*time_t now = time(NULL);*/
         fprintf(stderr, "%" PRId64 " bytes, %" PRId32 " chunks, %d files processed\r", 
                 jcr.data_size, jcr.chunk_num, jcr.file_num);
@@ -346,7 +345,6 @@ void do_gc(int revision, char *path) {
 
     free_backup_version(jcr.bv);
 
-    TIMER_END(1, jcr.total_time);
     puts("==== gc end ====");
 
     printf("job id: %" PRId32 "\n", jcr.id);
@@ -369,7 +367,20 @@ void do_gc(int revision, char *path) {
             jcr.write_chunk_time / 1000000,
             jcr.data_size * 1000000 / jcr.write_chunk_time / 1024 / 1024);
 
-    char logfile[] = "restore.log";
+ 
+
+    close_container_store();
+    close_recipe_store();
+
+    write_rc_struct_to_disk();
+
+    Destory_rc_list();
+
+    get_delete_message();
+
+    TIMER_END(1, jcr.gc_time);
+
+    char logfile[] = "gc.log";
     FILE *fp = fopen(logfile, "a");
 
     /*
@@ -380,22 +391,15 @@ void do_gc(int revision, char *path) {
      * speed factor,
      * throughput
      */
-    fprintf(fp, "%" PRId32 " %" PRId64 " %" PRId32 " %.4f %.4f\n", jcr.id, jcr.data_size,
-            jcr.read_container_num,
-            jcr.data_size / (1024.0 * 1024 * jcr.read_container_num),
-            jcr.data_size * 1000000 / (1024 * 1024 * jcr.total_time));
+   
+    fprintf(fp, "%" PRId32 " %.4f %.4f %.4f %.4f %ld \n",
+    	revision, 
+        jcr.gc_time / 1000000,
+        jcr.read_rc_struct_time / 1000000,
+        jcr.gc_list_time / 1000000,
+        jcr.write_rc_struct_time / 1000000,
+        gc_count*4/1024);
 
     fclose(fp);
-
-    close_container_store();
-    close_recipe_store();
-
-    write_rc_struct_to_disk();
-
-    Destory_rc_list();
-
-    get_delete_message();
 }
-
-
 
